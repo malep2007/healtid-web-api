@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'healthid.apps.authentication',
     'healthid.apps.business',
     'healthid.apps.outlets',
+    'healthid.apps.preference',
     'corsheaders',
 ]
 
