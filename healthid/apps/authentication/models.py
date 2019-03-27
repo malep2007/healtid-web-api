@@ -46,7 +46,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """
-        User model
+        It create a calendar for any model in the application
     """
 
     id = models.CharField(
