@@ -32,6 +32,7 @@ class CreateRegister(graphene.Mutation):
         )
 
 
+
 class UpdateRegister(graphene.Mutation):
     """
     This Updates a register
@@ -56,6 +57,7 @@ class UpdateRegister(graphene.Mutation):
             register.save()
             return UpdateRegister(ok=ok, register=register)
         return UpdateRegister(ok=ok, register=None)
+
 
 
 class DeleteRegister(graphene.Mutation):
@@ -87,3 +89,4 @@ class Mutation(graphene.ObjectType):
     create_register = CreateRegister.Field()
     delete_register = DeleteRegister.Field()
     update_register = UpdateRegister.Field()
+
