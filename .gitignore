@@ -11,4 +11,6 @@ htmlcov/
 .coveragerc
 .env
 db.sqlite3
-.tox
+lib/
+pyvenv.cfg
+bin/

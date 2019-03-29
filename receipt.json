@@ -1,0 +1,30 @@
+[
+  {
+      "model":"outlets.receipt",
+      "pk":"52k75gnn8",
+      "fields":{
+         "cashier":"Moses",
+         "discount":300,
+         "subtotal":50000,
+         "tax":1000,
+         "amount_to_pay":60000,
+         "purchase_total":40000,
+         "change_due":400,
+         "loyal":200
+      }
+   },
+   {
+      "model":"outlets.receipt",
+      "pk":"6lbwaaf31",
+      "fields":{
+         "cashier":"Daniel",
+         "discount":100,
+         "subtotal":100000,
+         "tax":5000,
+         "amount_to_pay":70000,
+         "purchase_total":30000,
+         "change_due":300,
+         "loyal":100
+      }
+   }
+]
