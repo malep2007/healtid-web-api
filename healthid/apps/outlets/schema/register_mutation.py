@@ -17,6 +17,7 @@ class CreateRegister(graphene.Mutation):
     This Creates a register
     """
     register = graphene.Field(RegisterType)
+    errors = graphene.List(graphene.String)
 
     class Arguments:
         name = graphene.String()
@@ -30,18 +31,19 @@ class CreateRegister(graphene.Mutation):
     def mutate(self, info, **kwargs):
         name = kwargs.get('name')
         if name:
-                try:
-                    register = Register()
-                    for(k, v) in kwargs.items():
-                        setattr(register, k, v)
-                    register.save()
-                except Exception as e:
-                    raise Exception(f'Something went wrong {e}')
+            try:
+                register = Register()
+                for(k, v) in kwargs.items():
+                    setattr(register, k, v)
+                register.save()
+            except Exception as e:
+                raise Exception(f'Something went wrong {e}')
 
-                return CreateRegister(
+            return CreateRegister(
                     register=register
                 )
-        return "Enter Name field"
+        errors = ["name", "Enter Name field"]
+        return CreateRegister(errors=errors)
 
 
 
