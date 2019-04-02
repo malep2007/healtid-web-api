@@ -10,7 +10,3 @@ htmlcov/
 .coverage
 .coveragerc
 .env
-db.sqlite3
-lib/
-pyvenv.cfg
-bin/
