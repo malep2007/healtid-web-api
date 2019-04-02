@@ -5,7 +5,7 @@ from healthid.apps.authentication.schema import (AuthMutation, AuthQuery,
                                                  ObtainJSONWebToken)
 from healthid.apps.business.schema import business_mutation, business_query
 from healthid.apps.orders.schema import SuppliersMutation, SuppliersQuery
-from healthid.apps.outlets.schema import outlet_mutation, outlet_schema
+from healthid.apps.outlets.schema import outlet_mutation, outlet_schema,register_mutation,register_schema
 from healthid.apps.receipts.schema import receipt_schema, receipt_mutation
 
 
@@ -15,6 +15,7 @@ class Query(
         outlet_schema.Query,
         SuppliersQuery,
         receipt_schema.Query,
+        register_schema.Query,
         graphene.ObjectType):
     pass
 
@@ -25,6 +26,7 @@ class Mutation(
         outlet_mutation.Mutation,
         SuppliersMutation,
         receipt_mutation.Mutation,
+        register_mutation.Mutation,
         graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()

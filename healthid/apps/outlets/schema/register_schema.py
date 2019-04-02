@@ -1,8 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
-
 from healthid.apps.outlets.models import Register
+
 
 class RegisterType(DjangoObjectType):
     class Meta:

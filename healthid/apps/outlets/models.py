@@ -1,16 +1,14 @@
 from django.db import models
-from healthid.apps.business.models import Business
-<<<<<<< HEAD
-from healthid.apps.authentication.models import User
-=======
 from django.utils.http import int_to_base36
+from healthid.apps.business.models import Business
+from healthid.apps.authentication.models import User
+
 import uuid
 
-def id_gen() -> str:
+
+def id_gen():
     """Generates an 8 character long random string"""
     return int_to_base36(uuid.uuid4().int)[:8]
->>>>>>> feat(add_register)- create receipt and register model
-
 
 class Country(models.Model):
     name = models.CharField(max_length=244, unique=True)
@@ -57,30 +55,12 @@ class Outlet(models.Model):
     def __str__(self):
         return self.name
 
-class Receipt(models.Model):
-    id = models.CharField(
-        max_length=9, primary_key=True, default=id_gen, editable=False
-    )
-    cashier = models.CharField(max_length=244)
-    discount = models.IntegerField()
-    subtotal = models.IntegerField()
-    tax = models.IntegerField()
-    amount_to_pay = models.IntegerField()
-    purchase_total = models.IntegerField()
-    change_due = models.IntegerField()
-    loyal = models.IntegerField()
 
-    def __str__(self):
-        return self.cashier
-
-    class Meta:
-        ordering = ('cashier',)
-
-
+from healthid.apps.receipts.models import ReceiptTemplate
 class Register(models.Model):
     name = models.CharField(max_length=244)
     outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE)
-    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE)
+    receipt = models.ForeignKey(ReceiptTemplate, on_delete=models.CASCADE,related_name='receipttemplate')
 
     def __str__(self):
         return self.name
