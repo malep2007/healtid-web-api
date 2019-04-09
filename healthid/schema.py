@@ -5,7 +5,8 @@ from healthid.apps.authentication.schema import (AuthMutation, AuthQuery,
                                                  ObtainJSONWebToken)
 from healthid.apps.business.schema import business_mutation, business_query
 from healthid.apps.orders.schema import SuppliersMutation, SuppliersQuery
-from healthid.apps.outlets.schema import outlet_mutation, outlet_schema,register_mutation,register_schema
+from healthid.apps.outlets.schema import (
+    outlet_mutation, outlet_schema, register_mutation, register_schema)
 from healthid.apps.receipts.schema import receipt_schema, receipt_mutation
 
 

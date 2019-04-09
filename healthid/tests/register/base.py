@@ -12,10 +12,9 @@ class RegisterBaseCase(BaseConfiguration):
             change_due=False, loyalty=True, amount_to_pay=False, receipt=False,
             receipt_no=True)
 
-
     def create_register(self):
-          receipt_template = self.create_receipt_template()
-          return Register.objects.create(
+        receipt_template = self.create_receipt_template()
+        return Register.objects.create(
             name="liver moore",
             outlet_id=receipt_template.outlet_id,
             receipt_id=receipt_template.id)
