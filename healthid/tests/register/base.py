@@ -1,6 +1,6 @@
 from healthid.tests.base_config import BaseConfiguration
 from healthid.apps.receipts.models import ReceiptTemplate
-from healthid.apps.outlets.models import Register
+from healthid.apps.register.models import Register
 
 
 class RegisterBaseCase(BaseConfiguration):

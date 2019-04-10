@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'healthid.apps.business',
     'healthid.apps.outlets',
     'healthid.apps.orders',
+    'healthid.apps.register',
     'rest_framework',
     'corsheaders',
     'healthid.apps.receipts',
@@ -168,8 +169,7 @@ CORS_ORIGIN_WHITELIST = (
 )
 
 cloudinary.config(
-  cloud_name=os.getenv('CLOUD_NAME'),
-  api_key=os.getenv('API_KEY'),
-  api_secret=os.getenv('API_SECRET')
+    cloud_name=os.getenv('CLOUD_NAME'),
+    api_key=os.getenv('API_KEY'),
+    api_secret=os.getenv('API_SECRET')
 )
-

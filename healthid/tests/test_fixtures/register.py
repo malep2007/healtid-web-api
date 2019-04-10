@@ -1,4 +1,4 @@
-def create_register_query(outlet_id,receipt_id):
+def create_register_query(outlet_id, receipt_id):
     return (f'''
                 mutation{{
                 createRegister(
