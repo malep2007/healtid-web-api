@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='outlet',
             name='user',
-            field=models.ManyToManyField(related_name='users', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                related_name='users', to=settings.AUTH_USER_MODEL),
         ),
     ]

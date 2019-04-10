@@ -16,47 +16,55 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='City',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=244)),
             ],
         ),
         migrations.CreateModel(
             name='Country',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=244, unique=True)),
             ],
         ),
         migrations.CreateModel(
             name='Outlet',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=244)),
                 ('address_line1', models.CharField(max_length=244)),
                 ('address_line2', models.CharField(max_length=244)),
                 ('lga', models.CharField(max_length=244)),
                 ('phone_number', models.CharField(max_length=25)),
                 ('date_launched', models.DateField()),
-                ('business', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='business.Business')),
-                ('city', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='outlets.City')),
+                ('business', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='business.Business')),
+                ('city', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to='outlets.City')),
             ],
         ),
         migrations.CreateModel(
             name='OutletKind',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=244)),
             ],
         ),
         migrations.AddField(
             model_name='outlet',
             name='kind',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='outlets.OutletKind'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='outlets.OutletKind'),
         ),
         migrations.AddField(
             model_name='city',
             name='country',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='outlets.Country'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='outlets.Country'),
         ),
         migrations.AlterUniqueTogether(
             name='outlet',
