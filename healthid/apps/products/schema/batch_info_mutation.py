@@ -7,14 +7,16 @@ from django.utils.dateparse import parse_date
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
-from healthid.apps.orders.models import Suppliers
+from healthid.apps.orders.models import Order, Suppliers
 from healthid.apps.outlets.models import Outlet
-from healthid.apps.products.models import BatchInfo, Product, Quantity
+from healthid.apps.products.models import (BatchInfo, Product, Quantity,
+                                           DeliveryPromptness)
 from healthid.apps.products.schema.product_query import BatchInfoType
 from healthid.utils.app_utils.database import (SaveContextManager,
                                                get_model_object)
 from healthid.utils.auth_utils.decorator import user_permission
 from healthid.utils.product_utils.batch_utils import batch_info_instance
+from healthid.utils.product_utils.validators import validate
 
 
 class CreateBatchInfo(graphene.Mutation):
@@ -24,6 +26,7 @@ class CreateBatchInfo(graphene.Mutation):
     batch_info = graphene.Field(BatchInfoType)
 
     class Arguments:
+        order_number = graphene.String(required=True)
         supplier_id = graphene.String(required=True)
         product = graphene.List(graphene.Int, required=True)
         date_received = graphene.String()
@@ -31,7 +34,9 @@ class CreateBatchInfo(graphene.Mutation):
         quantities = graphene.List(graphene.Int, required=True)
         expiry_date = graphene.String()
         unit_cost = graphene.Float(required=True)
-        commentary = graphene.String()
+        service_quality = graphene.Int()
+        promptness_id = graphene.String()
+        comments = graphene.String()
 
     errors = graphene.List(graphene.String)
     message = graphene.List(graphene.String)
@@ -41,12 +46,28 @@ class CreateBatchInfo(graphene.Mutation):
     def mutate(self, info, **kwargs):
         user = info.context.user
         outlet = get_model_object(Outlet, 'user', user)
+        order_number = kwargs.get('order_number')
         supplier_id = kwargs.get('supplier_id')
         products = kwargs.get('product')
         quantities = kwargs.get('quantities')
+        promptness = kwargs.get('promptness_id', None)
+        service_quality = kwargs.get('service_quality', None)
 
+        if promptness:
+            promptness_instance = get_model_object(
+                DeliveryPromptness, 'id', promptness)
+        if service_quality and service_quality > 5:
+            raise GraphQLError(
+                'Service Quality rating should be between 1 to 5!')
+
+        order_instance = get_model_object(Order, 'order_number',
+                                          order_number)
         supplier_instance = get_model_object(
             Suppliers, 'supplier_id', supplier_id)
+        if not products:
+            products = [product.id for product in order_details_instance.products.all()]
+        if not quantities:
+            quantities = [quantity.id for quantity in order_instance.quantities.all()]
         if len(products) != len(quantities):
             raise GraphQLError("the number of products and quantities "
                                "provided do not match")
@@ -55,10 +76,13 @@ class CreateBatchInfo(graphene.Mutation):
             pack_size=kwargs.get('pack_size'),
             expiry_date=parse_date(kwargs.get('expiry_date')),
             unit_cost=kwargs.get('unit_cost'),
-            commentary=kwargs.get('commentary'),
+            comments=kwargs.get('comments'),
             supplier=supplier_instance,
             outlet=outlet,
-            user=user
+            user=user,
+            service_quality=service_quality,
+            delivery_promptness=promptness_instance,
+            order=order_instance
         )
 
         for index, product_id in enumerate(products):

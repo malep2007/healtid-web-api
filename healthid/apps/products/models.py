@@ -7,6 +7,7 @@ from healthid.apps.orders.models import Suppliers
 from healthid.apps.authentication.models import User
 from healthid.apps.outlets.models import Outlet
 from healthid.utils.app_utils.id_generator import id_gen
+from healthid.apps.orders.models import Order
 
 
 class ProductCategory(models.Model):
@@ -20,6 +21,12 @@ class MeasurementUnit(models.Model):
 class ProductManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_active=True)
+
+
+class DeliveryPromptness(models.Model):
+    id = models.CharField(
+        max_length=9, primary_key=True, default=id_gen, editable=False)
+    name = models.CharField(max_length=50, unique=True)
 
 
 class Product(models.Model):
@@ -103,12 +110,17 @@ class BatchInfo(models.Model):
     expiry_date = models.DateField(auto_now=False, null=True, blank=True)
     unit_cost = models.DecimalField(
         max_digits=20, decimal_places=2, default=Decimal('0.00'))
-    commentary = models.TextField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
     product = models.ManyToManyField(Product, related_name='batch_info')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_batches')
     outlet = models.ForeignKey(
         Outlet, on_delete=models.CASCADE, related_name='outlet_batches')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    sku_number = models.CharField(blank=False, max_length=100)
+    delivery_promptness = models.ForeignKey(
+        DeliveryPromptness, on_delete=models.CASCADE)
+    service_quality = models.IntegerField(null=True)
 
     def __str__(self):
         return self.batch_no

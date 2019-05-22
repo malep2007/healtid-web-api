@@ -69,3 +69,4 @@ class Order(models.Model):
     destination_outlet = models.ManyToManyField(Outlet)
     delivery_date = models.DateField()
     sent_status = models.BooleanField(default=False)
+    closed = models.BooleanField(default=False)
