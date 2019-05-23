@@ -15,12 +15,14 @@ from healthid.utils.auth_utils.decorator import user_permission
 
 class SupplierType(DjangoObjectType):
     """Supplier type class"""
+
     class Meta:
         model = Suppliers
 
 
 class PriceCheckSurveyType(DjangoObjectType):
     """Type for price check surveys"""
+
     class Meta:
         model = PriceCheckSurvey
 
@@ -52,17 +54,13 @@ class CreatePriceCheckSurvey(graphene.Mutation):
         survey_instance = Survey(
             created_by=created_by, outlet=outlet, name=name)
 
-        params = {
-            'model_name': 'Survey',
-            'field': 'name',
-            'value': name
-        }
+        params = {'model_name': 'Survey', 'field': 'name', 'value': name}
 
         # Save the survey instance along with the products and suppliers
         with SaveContextManager(survey_instance, **params):
             for supplier_id in suppliers:
-                supplier = get_model_object(
-                    Suppliers, 'supplier_id', supplier_id)
+                supplier = get_model_object(Suppliers, 'supplier_id',
+                                            supplier_id)
                 for product_id in products:
                     price_check_survey = PriceCheckSurvey()
                     price_check_survey.supplier = supplier
@@ -72,8 +70,8 @@ class CreatePriceCheckSurvey(graphene.Mutation):
                     price_check_survey.survey.add(survey_instance)
 
             success = 'Master survey, {}, successfully created.'.format(name)
-            return CreatePriceCheckSurvey(success=success,
-                                          survey=survey_instance)
+            return CreatePriceCheckSurvey(
+                success=success, survey=survey_instance)
 
 
 class DeletePriceCheckSurvey(graphene.Mutation):
@@ -142,21 +140,15 @@ class UpdatePriceCheckSurvey(graphene.Mutation):
         if name:
             survey_instance.name = name
 
-        params = {
-            'model_name': 'Survey',
-            'field': 'name',
-            'value': name
-        }
+        params = {'model_name': 'Survey', 'field': 'name', 'value': name}
 
         with SaveContextManager(survey_instance, **params):
             if suppliers:
                 if not products:
-                    raise GraphQLError(
-                        "Please specify at least one product.")
+                    raise GraphQLError("Please specify at least one product.")
             if products:
                 if not suppliers:
-                    raise GraphQLError(
-                        "Please specify at least one supplier.")
+                    raise GraphQLError("Please specify at least one supplier.")
                 # delete all price checks for the current survey
                 # since no other survey will be using them
                 # after disassociating them with the current survey.
@@ -164,12 +156,11 @@ class UpdatePriceCheckSurvey(graphene.Mutation):
 
                 # create new price checks for the current survey.
                 for supplier_id in suppliers:
-                    supplier = get_model_object(
-                        Suppliers, 'supplier_id', supplier_id)
+                    supplier = get_model_object(Suppliers, 'supplier_id',
+                                                supplier_id)
                     for product_id in products:
                         price_check_survey = PriceCheckSurvey()
-                        product = get_model_object(
-                            Product, 'id', product_id)
+                        product = get_model_object(Product, 'id', product_id)
                         price_check_survey.supplier = supplier
                         price_check_survey.product = product
                         price_check_survey.save()
@@ -177,5 +168,22 @@ class UpdatePriceCheckSurvey(graphene.Mutation):
 
         success = 'Survey, {}, successfully updated.'.format(
             survey_instance.id)
-        return UpdatePriceCheckSurvey(success=success,
-                                      survey=survey_instance)
+        return UpdatePriceCheckSurvey(success=success, survey=survey_instance)
+
+
+class CloseSurvey(graphene.Mutation):
+    success = graphene.Field(graphene.String)
+    survey = graphene.Field(SurveyType)
+
+    class Arguments:
+        survey_id = graphene.String(required=True)
+
+    @user_permission('Operations Admin')
+    def mutate(self, info, **kwargs):
+        survey_id = kwargs.get('survey_id')
+        survey = get_model_object(Survey, 'id', survey_id)
+        survey.survey_closed = True
+        name = survey.name
+        survey.save()
+        success = f"survey {name} has been closed!"
+        return CloseSurvey(success=success, survey=survey)

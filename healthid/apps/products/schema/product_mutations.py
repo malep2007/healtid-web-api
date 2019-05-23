@@ -3,14 +3,13 @@ from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
 from healthid.apps.products.models import Product, ProductCategory
-from healthid.apps.products.schema.batch_info_mutation import (CreateBatchInfo,
-                                                               DeleteBatchInfo,
-                                                               ProposeQuantity,
-                                                               UpdateBatchInfo)
+from healthid.apps.products.schema.batch_info_mutation import (
+    CreateBatchInfo, DeleteBatchInfo, ProposeQuantity, UpdateBatchInfo)
 from healthid.apps.products.schema.measurement_unit_mutation import (
     CreateMeasurementUnit, DeleteMeasurementUnit, EditMeasurementUnit)
 from healthid.apps.products.schema.price_survey_mutations import (
-    CreatePriceCheckSurvey, DeletePriceCheckSurvey, UpdatePriceCheckSurvey)
+    CreatePriceCheckSurvey, DeletePriceCheckSurvey, UpdatePriceCheckSurvey,
+    CloseSurvey)
 from healthid.apps.products.schema.product_category_mutation import (
     CreateProductCategory, DeleteProductCategory, EditProductCategory)
 from healthid.apps.products.schema.product_query import (ProductCategoryType,
@@ -256,6 +255,7 @@ class ActivateProduct(ActivateDeactivateProducts):
     """
     Mutation class to activate a product
     """
+
     @login_required
     @user_permission('Operations Admin')
     def mutate(self, info, **kwargs):
@@ -271,6 +271,7 @@ class DeativateProduct(ActivateDeactivateProducts):
     """
     Mutation class to deactivate a product
     """
+
     @login_required
     @user_permission('Operations Admin')
     def mutate(self, info, **kwargs):
@@ -305,3 +306,4 @@ class Mutation(graphene.ObjectType):
     create_price_check_survey = CreatePriceCheckSurvey.Field()
     delete_price_check_survey = DeletePriceCheckSurvey.Field()
     update_price_check_survey = UpdatePriceCheckSurvey.Field()
+    close_survey = CloseSurvey.Field()
