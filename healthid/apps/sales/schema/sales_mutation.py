@@ -3,9 +3,10 @@ from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
 from healthid.apps.outlets.models import Outlet
-from healthid.apps.products.models import Product
-from healthid.apps.sales.models import SalesPrompt
-from healthid.apps.sales.schema.sales_schema import SalesPromptType
+from healthid.apps.products.models import (Product, Quantity)
+from healthid.apps.sales.models import (SalesPrompt, Sale, ItemDetail)
+from healthid.apps.sales.schema.sales_schema import (
+    SalesPromptType, SaleType)
 from healthid.utils.app_utils.database import (SaveContextManager,
                                                get_model_object)
 from healthid.utils.auth_utils.decorator import user_permission
@@ -35,6 +36,7 @@ class CreateSalesPrompts(graphene.Mutation):
         valid_list = all(len(product_ids) == len(list_inputs)
                          for list_inputs in
                          [titles, prompt_descriptions, outlet_ids])
+
         if not valid_list or len(product_ids) < 1:
 
             raise GraphQLError('List inputs are incomplete or empty')
@@ -114,7 +116,71 @@ class DeleteSalesPrompt(graphene.Mutation):
             success="Sales Prompt was deleted successfully")
 
 
+class Products(graphene.InputObjectType):
+    id = graphene.Int()
+    quantity = graphene.Float()
+    discount = graphene.Float()
+    price = graphene.Float()
+
+
+class CreateSale(graphene.Mutation):
+    sale = graphene.Field(SaleType)
+    message = graphene.String()
+    error = graphene.String()
+
+    class Arguments:
+        products = graphene.List(Products, required=True)
+        general_discount = graphene.Float(graphene.Float, required=True)
+        sub_total = graphene.Float(graphene.Float, required=True)
+        total_amount = graphene.Float(graphene.Float, required=True)
+
+    def mutate(self, info, **kwargs):
+
+        sales_person = info.context.user
+
+        products = kwargs.get('products')
+        general_discount = kwargs.get('general_discount')
+        sub_total = kwargs.get('sub_total')
+        total_amount = kwargs.get('total_amount')
+
+        if not products:
+            raise GraphQLError("Products must have at least 1 product")
+
+        if general_discount < 1 or general_discount > 100:
+            raise GraphQLError(
+                "Discount must be greater than 0 but less than or equal to 100")
+
+        if total_amount < 1 or sub_total < 1:
+            raise GraphQLError(
+                "Amount should be greater than 1")
+
+        sale = Sale()
+        sale.sales_person = sales_person
+        sale.general_discount = general_discount
+        sale.sub_total = sub_total
+        sale.total_amount = total_amount
+        sale.save()
+
+        for product in products:
+            item_detail = ItemDetail()
+            item_detail.quantity = product.quantity
+            item_detail.discount = product.discount
+            item_detail.price = product.price
+            item_detail.product = get_model_object(
+                Product, 'id', product.id)
+            item_detail.sale = sale
+            item_detail.save()
+            # substract kg from from quantity table
+            product_quantity = get_model_object(
+                Quantity, 'product_id', product.id)
+            product_quantity.quantity_received -= product.quantity
+            product_quantity.save(force_update=True)
+
+        return CreateSale(sale=sale, message='Sales was created successfully')
+
+
 class Mutation(graphene.ObjectType):
     create_salesprompts = CreateSalesPrompts.Field()
     delete_salesprompt = DeleteSalesPrompt.Field()
     update_salesprompt = UpdateSalesPrompt.Field()
+    create_sale = CreateSale.Field()

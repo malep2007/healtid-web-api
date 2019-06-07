@@ -3,10 +3,11 @@ from django.db import models
 from healthid.models import BaseModel
 from django.db.models import Sum
 from django.db.models.signals import pre_save
-from healthid.apps.products.models import Product
+from healthid.apps.products.models import (Product, ProductCategory)
 from healthid.apps.outlets.models import Outlet
 from healthid.utils.app_utils.id_generator import id_gen
 from healthid.apps.authentication.models import User
+from healthid.apps.profiles.models import Profile
 
 
 class PromotionType(BaseModel):
@@ -95,3 +96,33 @@ def update_item_total(**kwargs):
 
 
 pre_save.connect(update_item_total, sender=CartItem)
+
+
+class Sale(BaseModel):
+    sales_person = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='sold_by')
+    outlet = models.ForeignKey(Outlet,  on_delete=models.CASCADE, null=True)
+    customer = models.ForeignKey(
+        Profile,  on_delete=models.CASCADE, null=True)
+    product = models.ManyToManyField(
+        Product, symmetrical=False, through='ItemDetail', related_name='sale_item')
+    product_category = models.ForeignKey(
+        ProductCategory,  on_delete=models.CASCADE, null=True)
+    sub_total = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0)
+    total_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0)
+    general_discount = models.FloatField()
+    payment_method = models.CharField(max_length=20, default="cash")
+    notes = models.TextField(blank=True)
+
+    def add_product(self, product):
+        self.product.add(product)
+
+
+class ItemDetail(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    quantity = models.FloatField()
+    discount = models.FloatField()
+    price = models.FloatField()
