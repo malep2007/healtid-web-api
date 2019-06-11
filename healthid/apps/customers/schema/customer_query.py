@@ -71,7 +71,7 @@ class Query(graphene.AbstractType):
         resolved_value = Profile.objects.all()
         return resolved_value
 
-    # @login_required
+    @login_required
     def resolve_customer(self, info, **kwargs):
         name = kwargs.get('name')
         mobile_number = kwargs.get('mobile_number')

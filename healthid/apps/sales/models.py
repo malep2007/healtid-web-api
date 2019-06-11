@@ -116,9 +116,6 @@ class Sale(BaseModel):
     payment_method = models.CharField(max_length=20, default="cash")
     notes = models.TextField(blank=True)
 
-    def add_product(self, product):
-        self.product.add(product)
-
 
 class ItemDetail(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
