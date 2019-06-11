@@ -4,6 +4,7 @@ from django.db.models import Q
 import graphene
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django import DjangoObjectType
+from graphene.utils.resolve_only_args import resolve_only_args
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
@@ -27,6 +28,12 @@ class CustomerCustomerType(DjangoObjectType):
         }
 
         interfaces = (graphene.relay.Node, )
+
+    id = graphene.ID(required=True)
+
+    @resolve_only_args
+    def resolve_id(self):
+        return self.id
 
 
 class Query(graphene.AbstractType):
