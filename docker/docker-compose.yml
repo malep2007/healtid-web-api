@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  app:
+    restart: always
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - 8000:8000
+    expose:
+      - '8000'
+    volumes:
+      - ${PWD}:/app
+    env_file:
+      - ../.env
+    depends_on:
+      - database
+    stdin_open: true
+    container_name: healthid_api
+
+
+  database:
+    restart: always
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: healthid
+    ports:
+      - 5432:5432
+    volumes:
+      - ./healthid:/var/lib/postgresql/data/
+    container_name: healthid_database
