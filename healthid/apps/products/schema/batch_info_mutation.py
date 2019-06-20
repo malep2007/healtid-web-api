@@ -6,7 +6,7 @@ from django.utils.dateparse import parse_date
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
-from healthid.apps.orders.models import Suppliers
+from healthid.apps.orders.models import Suppliers, Order
 from healthid.apps.outlets.models import Outlet
 from healthid.apps.products.models import BatchInfo, Product, Quantity
 from healthid.apps.products.schema.product_query import (BatchInfoType,
@@ -22,11 +22,13 @@ from healthid.utils.product_utils.product import \
 
 class CreateBatchInfo(graphene.Mutation):
     """
-        Mutation to create a Product batch Information
+        Mutation to create a reconcile a received order
     """
     batch_info = graphene.Field(BatchInfoType)
 
     class Arguments:
+        order_id = graphene.String(required=True)
+        delivery_promptness = graphene.String()
         supplier_id = graphene.String(required=True)
         product = graphene.List(graphene.Int, required=True)
         date_received = graphene.String()
@@ -34,9 +36,8 @@ class CreateBatchInfo(graphene.Mutation):
         quantities = graphene.List(graphene.Int, required=True)
         expiry_date = graphene.String()
         unit_cost = graphene.Float(required=True)
-        commentary = graphene.String()
-        outlet_id = graphene.String()
-        user_id = graphene.String()
+        comments = graphene.String()
+        service_quality = graphene.Int()
 
     errors = graphene.List(graphene.String)
     message = graphene.List(graphene.String)
@@ -49,21 +50,28 @@ class CreateBatchInfo(graphene.Mutation):
         supplier_id = kwargs.get('supplier_id')
         products = kwargs.get('product')
         quantities = kwargs.get('quantities')
+        service_quality = kwargs.get('service_quality')
+        delivery_promptness = kwargs.get('delivery_promptness')
+        order_id = kwargs.get('order_id')
 
         supplier_instance = get_model_object(Suppliers, 'supplier_id',
                                              supplier_id)
+        order_instance = get_model_object(Order, 'id', order_id)
         if len(products) != len(quantities):
-            raise GraphQLError("the number of products and quantities "
+            raise GraphQLError("The number of products and quantities "
                                "provided do not match")
         batch_info = BatchInfo.objects.create(
             date_received=parse_date(kwargs.get('date_received')),
             pack_size=kwargs.get('pack_size'),
             expiry_date=parse_date(kwargs.get('expiry_date')),
             unit_cost=kwargs.get('unit_cost'),
-            commentary=kwargs.get('commentary'),
+            comments=kwargs.get('comments'),
+            service_quality=service_quality,
+            delivery_promptness=delivery_promptness,
             supplier=supplier_instance,
             outlet=outlet,
             user=user)
+        order_instance.closed = True
         for index, product_id in enumerate(products):
             product_instance = get_model_object(Product, 'id', product_id)
             generate_reorder_points_and_max(product_instance)

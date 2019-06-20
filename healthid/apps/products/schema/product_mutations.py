@@ -60,6 +60,7 @@ class CreateProduct(graphene.Mutation):
     @login_required
     def mutate(self, info, **kwargs):
         product = Product()
+        import pdb; pdb.set_trace()
         output = set_attributes(product, **kwargs)
         return CreateProduct(product=output)
 

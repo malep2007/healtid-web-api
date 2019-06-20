@@ -24,6 +24,15 @@ class ProductManager(BaseManager):
         return super().get_queryset().filter(is_active=True)
 
 
+class DeliveryPromptness(BaseModel):
+    """
+    Model to handle delivery promptness data
+    """
+
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=10)    
+
+
 class Product(BaseModel):
     product_category = models.ForeignKey(
         ProductCategory, on_delete=models.CASCADE)
@@ -118,12 +127,14 @@ class BatchInfo(BaseModel):
     expiry_date = models.DateField(auto_now=False, null=True, blank=True)
     unit_cost = models.DecimalField(
         max_digits=20, decimal_places=2, default=Decimal('0.00'))
-    commentary = models.TextField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True)
     product = models.ManyToManyField(Product, related_name='batch_info')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_batches')
     outlet = models.ForeignKey(
         Outlet, on_delete=models.CASCADE, related_name='outlet_batches')
+    service_quality = models.IntegerField(blank=True, null=True)
+    delivery_promptness = models.ForeignKey(DeliveryPromptness, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.batch_no
