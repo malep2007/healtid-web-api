@@ -1,20 +1,22 @@
 import json
 from datetime import datetime
+
+from django.forms import model_to_dict
 from django.test import Client, TestCase
 
 from healthid.apps.authentication.models import Role, User
+from healthid.apps.events.models import Event, EventType
+from healthid.apps.orders.models import (Order, PaymentTerms, SupplierNote,
+                                         Suppliers, Tier)
 from healthid.apps.outlets.models import City, Country, Outlet, OutletKind
 from healthid.apps.products.models import (BatchInfo, MeasurementUnit, Product,
                                            ProductCategory, Quantity)
-from healthid.apps.orders.models import (
-    PaymentTerms, Tier, Suppliers, SupplierNote)
+from healthid.apps.profiles.models import Profile
 from healthid.apps.sales.models import SalesPrompt
-from healthid.apps.preference.models import Timezone, Preference
+from healthid.apps.stock.models import StockCountTemplate
+from healthid.apps.preference.models import Timezone, OutletPreference
 from healthid.tests.test_fixtures.authentication import login_user_query
 from healthid.utils.business_utils.create_business import create_business
-from healthid.apps.events.models import EventType
-from healthid.apps.stock.models import StockCountTemplate
-from healthid.apps.events.models import Event
 
 
 class BaseConfiguration(TestCase):
@@ -68,28 +70,28 @@ class BaseConfiguration(TestCase):
         """
         self.new_user = {
             "email": "john.doe@gmail.com",
-            "mobile_number": "+256 770777777",
+            "mobile_number": "+256770777777",
             "password": "Password123"
         }
         self.stock_count_user1 = {
             "email": "arkafuuma@gmail.com",
-            "mobile_number": "+256 470777777",
+            "mobile_number": "+256470777777",
             "password": "Password123"
         }
         self.stock_count_user2 = {
             "email": "arkafuuma2@gmail.com",
-            "mobile_number": "+256 570777777",
+            "mobile_number": "+256570777777",
             "password": "Password123"
         }
         self.master_admin = {
             "email": "you@example.com",
-            "mobile_number": "+256 770777797",
+            "mobile_number": "+256770777797",
             "password": "Password123"
         }
 
         self.second_master_admin = {
             "email": "you.second@example.com",
-            "mobile_number": "+256 770777798",
+            "mobile_number": "+256770777798",
             "password": "Password1234"
         }
 
@@ -116,7 +118,7 @@ class BaseConfiguration(TestCase):
         self.outlet = {
             'name': 'bingo',
             'address_line1': "wandegya",
-            'phone_number': "254745345342",
+            'phone_number': "+254745345342",
             'address_line2': "Central, Kla",
             'lga': "KCCA",
             'date_launched': "1995-10-20"
@@ -124,7 +126,7 @@ class BaseConfiguration(TestCase):
         self.second_outlet = {
             'name': 'bingow',
             'address_line1': "wandegya ku bitaala",
-            'phone_number': "254745345341",
+            'phone_number': "+254745345341",
             'address_line2': "Central, Kla",
             'lga': "KCCA",
             'date_launched': "1995-10-20"
@@ -147,6 +149,7 @@ class BaseConfiguration(TestCase):
         self.sales_prompt = self.create_sales_prompt()
         self.suppliers_note = self.create_suppliers_note()
         self.event = self.create_event()
+        self.order = self.create_order()
 
         # register and log in user
         self.outlet.user.add(self.user)
@@ -157,7 +160,7 @@ class BaseConfiguration(TestCase):
         self.second_master_admin_token = self.admin_login(
             self.login_second_master_admin)
         self.access_token_master = self.admin_login(self.login_master_admin)
-        self.preference = Preference.objects.filter().first()
+        self.preference = OutletPreference.objects.filter().first()
         self.second_outlet = self.create_outlet(self.second_outlet)
         self.second_outlet.user.add(self.second_master_admin_user)
         self.outlet.user.add(self.master_admin_user)
@@ -168,10 +171,34 @@ class BaseConfiguration(TestCase):
             "email": "talktohabib@gmail.com",
             "city_id": self.outlet_kind['city_id'],
             "country_id": self.outlet_kind['country_id'],
-            "primary_mobile_number": "+256 788088831",
-            "secondary_mobile_number": "+256 788088831",
+            "primary_mobile_number": "+256788088831",
+            "secondary_mobile_number": "+256788088831",
             "loyalty_member": "true",
             "emergency_contact_email": "talktohabi2@gmail.com"
+        }
+
+        self.customer_1 = self.create_customer({
+            "first_name": "Dany",
+            "last_name": "Stomborn",
+            "email": "dany.stomborn@got.com",
+            "city_id": self.outlet_kind['city_id'],
+            "country_id": self.outlet_kind['country_id'],
+            "primary_mobile_number": "+234788088831",
+            "secondary_mobile_number": "+234788088832",
+            "loyalty_member": True,
+            "local_government_area": "Heming way",
+            "address_line_1": "20, king's Landing",
+            "address_line_2": "Esos lane",
+            "emergency_contact_name": "Frodo",
+            "emergency_contact_email": "saruman@lotr.world",
+            "emergency_contact_number": "+234897090878 "
+        })
+        self.invoice_data = {
+            "outlet_id": self.outlet.id,
+            "order_id": self.order.id,
+            "image_url": "http://onlineblueprintprinting.com/wp-content/"
+            "uploads/free-editable-invoice-template-invoice-template-"
+            "free-and-fully-customizable-online-templates.png",
         }
 
     def assertResponseNoErrors(self, resp: dict, expected: dict):
@@ -242,6 +269,28 @@ class BaseConfiguration(TestCase):
             date_launched=outlet['date_launched'],
             business_id=self.business.id)
 
+    def create_order(self, closed=True):
+        """Return an instance of Order.
+
+        If closed is True return a closed order
+
+        Args:
+            closed (Bool): order closed flag
+
+        Returns:
+            order (:obj) `model`
+        """
+        return Order.objects.create(
+            order_number="5757575",
+            name="ututu",
+            product_autofill=True,
+            supplier_autofill=True,
+            delivery_date="2012-12-12",
+            sent_status=True,
+            destination_outlet_id=self.outlet.id,
+            closed=closed
+        )
+
     def create_role(self, role_name):
         return Role.objects.create(name=role_name)
 
@@ -254,7 +303,7 @@ class BaseConfiguration(TestCase):
         return Suppliers.objects.create(
             name='Sport Direct',
             email='sportdirect@mail.com',
-            mobile_number='254745345342',
+            mobile_number='+254745345342',
             city=city,
             tier=tier,
             payment_terms=payment_terms,
@@ -264,7 +313,8 @@ class BaseConfiguration(TestCase):
         return MeasurementUnit.objects.create(name='kilogram')
 
     def create_product_category(self):
-        return ProductCategory.objects.create(name='Drinks')
+        return ProductCategory.objects.create(name='Drinks',
+                                              outlet=self.outlet)
 
     def create_product(self, product_name='Pizza'):
         return Product.objects.create(
@@ -272,7 +322,7 @@ class BaseConfiguration(TestCase):
             sales_price=100,
             product_category=self.product_category,
             measurement_unit=self.measurement_unit,
-            prefered_supplier=self.supplier,
+            preferred_supplier=self.supplier,
             backup_supplier=self.supplier,
             unit_cost=20.3, pre_tax_retail_price=25.0)
 
@@ -284,7 +334,7 @@ class BaseConfiguration(TestCase):
         )
         batch_info.product.add(self.product)
         Quantity.objects.create(
-            batch=batch_info, quantity_received=8,
+            batch=batch_info, quantity_received=8, is_approved=True,
             product=self.product)
         batch_info.save()
         return batch_info
@@ -331,3 +381,16 @@ class BaseConfiguration(TestCase):
         )
         supplier.outlet.add(self.outlet)
         return supplier
+
+    @staticmethod
+    def create_customer(data):
+        return Profile.objects.create(**data)
+
+    @staticmethod
+    def customer_fields_to_dict(data):
+        customer_data = model_to_dict(data)
+        customer_data["city_id"] = customer_data.pop("city")
+        customer_data["country_id"] = customer_data.pop("country")
+        customer_data["loyalty_member"] = str(
+            customer_data["loyalty_member"]).lower()
+        return customer_data

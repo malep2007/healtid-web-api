@@ -6,28 +6,21 @@ create_product = '''
                 productCategoryId:1,
                 productName :"panadol",
                 measurementUnitId :1,
-                packSize :"2kgs",
                 description :"first treatment people try for mild to moderate pain",  # noqa E501
                 brand :"ventolinllke",
                 manufacturer:"Harmon Northrop",
-                vatStatus:"VAT",
-                quality : "meet the pharmacopoeia specification",
-                salesPrice :1000,
-                unitCost:10.65,
-                preferedSupplierId :"{supplier_id}",
+                vatStatus:true,
+                loyaltyWeight: 1
+                preferredSupplierId :"{supplier_id}",
                 backupSupplierId:"{backup_id}",
-                tags :"painkillers"
+                tags :["painkillers"]
                     ){{
                 product{{
                     id
                     tags
                     salesPrice
-                    quality
-                    packSize
                     productName
                     vatStatus
-                    nearestExpiryDate
-                    skuNumber
                 }}
             }}
             }}
@@ -38,7 +31,7 @@ supplier_mutation = '''
             addSupplier(input:{
                 name: "shadik.",
                 email: "email@ntale.com",
-                mobileNumber:"0702260027",
+                mobileNumber:"+256702260027",
                 addressLine1:"address",
                 addressLine2:"addressline2",
                 lga: "lga",
@@ -70,15 +63,12 @@ mutation {{
         productCategoryId:1,
         productName :"gfcds",
         measurementUnitId :1,
-        packSize :"2kgs",
         description :"first treatment people try for mild to moderate pain",
         brand :"ventolinllke mklllll",
         manufacturer:"vbn",
-        vatStatus:"VAT",
-        quality : "meet the pharmacopoeia specification",
-        salesPrice :1000,
-        unitCost:10.2,
-        preferedSupplierId : "{0}",
+        vatStatus: true,
+        loyaltyWeight: 1
+        preferredSupplierId : "{0}",
         backupSupplierId:"{0}",
         tags:["painkillers","panadol"]
 
@@ -86,8 +76,6 @@ mutation {{
       product{{
         id
         salesPrice
-        quality
-        packSize
         productName
         vatStatus
         skuNumber
@@ -102,7 +90,7 @@ backup_supplier = '''
             addSupplier(input:{
                 name: "shadik.",
                 email: "shadik@email.com",
-                mobileNumber:"0702260027",
+                mobileNumber:"+256702260027",
                 addressLine1:"address",
                 addressLine2:"addressline2",
                 lga: "lga",
@@ -150,14 +138,12 @@ def create_product_2(supplier_id, backup_id, user):
         product_category_id=1,
         product_name='Panadol',
         measurement_unit_id=1,
-        pack_size="2kgs",
         description='first treatment people try',
         brand='ventolinllke',
         manufacturer="Harmon Northrop",
-        vat_status="VAT",
-        quality="meet the pharmacopoeia specification",
+        vat_status=True,
         sales_price=1000,
-        prefered_supplier_id=supplier_id,
+        preferred_supplier_id=supplier_id,
         backup_supplier_id=backup_id,
         tags="painkillers",
         unit_cost=10.65,
@@ -170,12 +156,10 @@ def update_product(product_id, product_name):
                 updateProduct(
                     id: {product_id},
                     productName: "{product_name}",
-                    packSize :"3kgs",
                     description :"forever younger",
                     brand :"ventolinllke",
                     manufacturer:"Harmon",
-                    vatStatus:"VAT",
-                    quality : "meet the pharmacopoeia specification",
+                    vatStatus:true,
                     salesPrice :1400,
                     tags :["painkillers","headache"]
                 ){{
@@ -240,7 +224,6 @@ product_search_query = '''
             edges {{
                 node {{
                 id
-                quality
                 productName
                 tags
                 }}
@@ -304,25 +287,30 @@ product_query = '''
         }
         '''
 create_product_category = '''
-    mutation {
+    mutation {{
     createProductCategory(
-        name:"panadol"
-        ){
-        productCategory{
+        name:"panadol",
+        outletId: {outlet_id}
+        isVatApplicable: true
+        loyaltyWeight: 1
+        markup: 20
+        ){{
+        productCategory{{
             id
             name
-        }
+            isVatApplicable
+            markup
+        }}
         message
-        }
-}
+        }}
+}}
     '''
 
 edit_product_category = '''
     mutation {
     editProductCategory(
       id:6,
-        name:"panadolextra"
-
+      name:"panadolextra"
     ){
       productCategory{
         id

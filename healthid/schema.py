@@ -9,7 +9,8 @@ from healthid.apps.consultation.schema import (consultation_mutation,
 from healthid.apps.notifications.schema import (notification_mutations,
                                                 notification_queries)
 from healthid.apps.orders.schema import (SuppliersMutation, SuppliersQuery,
-                                         order_mutations)
+                                         order_mutations, order_query,
+                                         barcode_mutations)
 from healthid.apps.outlets.schema import outlet_mutation, outlet_schema
 from healthid.apps.preference.schema import (preference_mutation,
                                              preference_schema)
@@ -22,7 +23,8 @@ from healthid.apps.sales.schema import (sales_mutation, sales_schema,
 from healthid.apps.events.schema import event_querys, event_mutations
 from healthid.apps.stock.schema import stock_mutation
 from healthid.apps.stock.schema import stock_query
-from healthid.apps.customers.schema import customer_mutation
+from healthid.apps.customers.schema import customer_mutation, customer_query
+from healthid.apps.orders.schema import invoices_mutation
 
 
 class Query(
@@ -42,6 +44,8 @@ class Query(
         stock_query.Query,
         notification_queries.Query,
         cart_query.Query,
+        customer_query.Query,
+        order_query.Query,
         graphene.ObjectType):
     pass
 
@@ -62,8 +66,10 @@ class Mutation(
         promotions_mutation.Mutation,
         stock_mutation.Mutation,
         order_mutations.Mutation,
+        barcode_mutations.Mutation,
         customer_mutation.Mutation,
         cart_mutation.Mutation,
+        invoices_mutation.Mutation,
         graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()

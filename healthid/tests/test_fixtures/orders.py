@@ -2,20 +2,43 @@ order = '''
 mutation{{
   initiateOrder(
     name:"Important order",
-    destinationOutlets:[{outlet_id}],
     deliveryDate:"2019-05-30",
     productAutofill: true,
-    supplierAutofill: true
+    supplierAutofill: true,
+    destinationOutlet: {outlet_id}
   ){{
   order{{
       id
       orderNumber
+      destinationOutlet{{
+        id
+      }}
   }}
   }}
   }}
 
 '''
+edit_order = '''
+mutation{{
+  editInitiatedOrder(
+    orderId:{order_id},
+    name:"Important order",
+    deliveryDate:"2019-05-30",
+    productAutofill: false,
+    supplierAutofill: false,
+    destinationOutletId: {outlet_id}
+  ){{
+  order{{
+      id
+      orderNumber
+      destinationOutlet{{
+        id
+      }}
+  }}
+  }}
+  }}
 
+'''
 suppliers_autofill = '''
 mutation{{
   addOrderDetails(
@@ -90,4 +113,96 @@ products_query = '''
         autofillQuantity
       }
     }
+'''
+
+suppliers_order_details = '''
+query {{
+  suppliersOrderDetails(orderId: {order_id}){{
+    id
+    orderDetails {{
+      product {{
+        productName
+      }}
+      quantity
+      supplier {{
+        name
+      }}
+    }}
+    supplierOrderName
+    supplierOrderNumber
+    deliverTo {{
+      id
+    }}
+    deliveryDue
+    additionalNotes
+  }}
+}}
+'''
+
+supplier_order_details = '''
+query {{
+  supplierOrderDetails(orderId: {order_id}, supplierId: "{supplier_id}"){{
+    id
+    orderDetails {{
+      product {{
+        productName
+      }}
+      quantity
+      supplier {{
+        name
+      }}
+    }}
+    supplierOrderName
+    supplierOrderNumber
+    deliverTo {{
+      id
+    }}
+    deliveryDue
+    additionalNotes
+  }}
+}}
+'''
+
+approve_order = '''
+mutation{{
+  approveOrder(orderId:{order_id}){{
+    message
+    order {{
+      id
+      orderNumber
+    }}
+  }}
+  }}
+'''
+
+retrieve_orders = '''
+query {
+  orders {
+    id
+  }
+}
+'''
+
+retrieve_order = '''
+query {{
+  order(orderId: {order_id}) {{
+    id
+  }}
+}}
+'''
+
+retrieve_open_orders = '''
+query {
+  openOrders {
+    id
+  }
+}
+'''
+
+retrieve_closed_orders = '''
+query {
+  closedOrders {
+    id
+  }
+}
 '''

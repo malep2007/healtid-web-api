@@ -16,7 +16,7 @@ login_user_query = '''
             mutation {
                createUser(
                    email:"user@gmail.com",
-                   mobileNumber:"+256 770777777",
+                   mobileNumber:"+256770777777",
                    password:"Passsword12"
                ) {
                  success
@@ -34,6 +34,17 @@ login_mutation = '''
                 }
                 }
             }
+            '''
+
+loginUser_mutation = '''
+            mutation {{
+                loginUser(
+                    email: "{email}",
+                    password: "{password}",
+                ){{
+                restToken
+                }}
+            }}
             '''
 
 

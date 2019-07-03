@@ -28,12 +28,13 @@
         }
     },
     {
-        "model": "preference.preference",
+        "model": "preference.outletpreference",
         "pk": "123456789",
         "fields":{
            "outlet_timezone": "285461788",
            "outlet_currency": "123456789",
-           "vat_rate": "123456789"
+           "vat_rate": "123456789",
+           "outlet_id": 1
         }
     },
     {
@@ -87,8 +88,7 @@
            "phone_number": "1234567890",
            "date_launched": "2019-05-05",
            "business": "123456789",
-           "user": ["aul5xrp73"],
-           "preference": "123456789"
+           "user": ["aul5xrp73"]
         }
     },
     {
@@ -109,7 +109,8 @@
         "model": "products.productcategory",
         "pk": 1,
         "fields": {
-          "name":"prescription"
+          "name":"prescription",
+          "outlet": 1
         }
     },
     {
@@ -149,23 +150,43 @@
         }
     },
     {
+        "model": "orders.suppliers",
+        "pk": 2,
+        "fields": {
+            "name": "second",
+            "email": "okay@email.com",
+            "mobile_number": "1234567890",
+            "rating": 1,
+            "address_line_1": "okay",
+            "lga": "nice",
+            "city": 1,
+            "tier": 1,
+            "logo": "sdfs",
+            "commentary": "sfsd",
+            "payment_terms": 1,
+            "credit_days": 1,
+            "supplier_id": "sdssdhk",
+            "user": "aul5xrp73",
+            "is_approved": true,
+            "admin_comment": "sefasefw"
+        }
+    },
+    {
         "model": "products.product",
         "pk": 1,
         "fields": {
             "product_category": 1,
             "product_name": "fsdf",
             "measurement_unit": 1,
-            "pack_size": "cool",
             "sku_number": "aidbfk",
             "is_approved": true,
             "description": "fdsegfsdg",
             "brand": "dsfsdf",
             "manufacturer": "asfasf",
-            "vat_status": "afssd",
-            "quality": "safa",
+            "vat_status": true,
             "sales_price": 10.00,
             "nearest_expiry_date": "2020-12-12",
-            "prefered_supplier": 1,
+            "preferred_supplier": 1,
             "backup_supplier": 1,
             "pre_tax_retail_price": 10.00,
             "unit_cost": 10.00
@@ -178,17 +199,15 @@
             "product_category": 1,
             "product_name": "efsdf",
             "measurement_unit": 1,
-            "pack_size": "cool",
             "sku_number": "aidbfk",
             "is_approved": true,
             "description": "fdsegfsdg",
             "brand": "dsfsdf",
             "manufacturer": "asfasf",
-            "vat_status": "afssd",
-            "quality": "safa",
+            "vat_status": true,
             "sales_price": 10.00,
             "nearest_expiry_date": "2020-12-12",
-            "prefered_supplier": 1,
+            "preferred_supplier": 1,
             "backup_supplier": 1,
             "pre_tax_retail_price": 10.00,
             "unit_cost": 10.00
@@ -201,17 +220,15 @@
             "product_category": 1,
             "product_name": "kljklnfd",
             "measurement_unit": 1,
-            "pack_size": "cool",
             "sku_number": "aidbfk",
             "is_approved": true,
             "description": "fdsegfsdg",
             "brand": "dsfsdf",
             "manufacturer": "asfasf",
-            "vat_status": "afssd",
-            "quality": "safa",
+            "vat_status": true,
             "sales_price": 10.00,
             "nearest_expiry_date": "2020-12-12",
-            "prefered_supplier": 1,
+            "preferred_supplier": 1,
             "backup_supplier": 1,
             "pre_tax_retail_price": 10.00,
             "unit_cost": 10.00

@@ -1,8 +1,9 @@
 import csv
 import io
-
 from django.http import HttpResponse
 from rest_framework import status
+from rest_framework.authentication import (SessionAuthentication,
+                                           TokenAuthentication)
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,9 +14,15 @@ from healthid.apps.products.serializers import ProductsSerializer
 from healthid.utils.orders_utils.add_supplier import add_supplier
 from healthid.utils.product_utils.handle_csv_export import handle_csv_export
 from healthid.utils.product_utils.handle_csv_upload import HandleCsvValidations
+from healthid.utils.constants.product_constants import \
+    PRODUCT_INCLUDE_CSV_FIELDS
+from healthid.utils.csv_export.generate_csv import generate_csv_response
+from rest_framework.exceptions import APIException
+from graphql import GraphQLError
 
 
 class HandleCSV(APIView):
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
     parser_classes = (MultiPartParser, )
     permission_classes = (IsAuthenticated, )
 
@@ -27,22 +34,33 @@ class HandleCSV(APIView):
             message = {"error": "Please upload a csv file"}
             return Response(message, status.HTTP_400_BAD_REQUEST)
         data_set = csv_file.read().decode('UTF-8')
+
         io_string = io.StringIO(data_set)
         next(io_string)
-        if param == 'suppliers':
-            user = request.user
-            add_supplier.handle_csv_upload(user, io_string)
-            message = {
-                "success": "Successfully added supplier(s)"
-            }
-            return Response(message, status.HTTP_201_CREATED)
-        if param == 'products':
-            handle_csv(io_string=io_string)
-            message = {"success": "Successfully added products"}
-            return Response(message, status.HTTP_201_CREATED)
+        try:
+            if param == 'suppliers':
+                user = request.user
+                add_supplier.handle_csv_upload(user, io_string)
+                message = {
+                    "success": "Successfully added supplier(s)"
+                }
+                return Response(message, status.HTTP_201_CREATED)
+            if param == 'products':
+                quantity_added = handle_csv(io_string=io_string)
+                message = {
+                    "success": "Successfully added products",
+                    "noOfProductsAdded": quantity_added,
+                }
+                return Response(message, status.HTTP_201_CREATED)
+        except (ValueError, GraphQLError) as e:
+            APIException.status_code = status.HTTP_400_BAD_REQUEST
+            raise APIException({
+                "errors": str(e)
+            })
 
 
 class HandleCsvExport(APIView):
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated, )
     serializer_class = ProductsSerializer
 
@@ -72,3 +90,23 @@ class HandleCsvExport(APIView):
                 product = handle_csv_export.write_csv(product, request)
                 writer.writerow(product)
             return response
+
+
+class EmptyProductCsvExport(APIView):
+    """Handle the download of empty CSV file"""
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        """Responds to a get request for csv download.
+
+        Args:
+            request(obj): The http request from client.
+
+        Returns:
+            The response in a csv format with a status of 200.
+
+        """
+        response = generate_csv_response(HttpResponse, 'sample_product.csv',
+                                         Product, PRODUCT_INCLUDE_CSV_FIELDS)
+        return response

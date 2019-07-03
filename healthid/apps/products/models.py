@@ -12,7 +12,22 @@ from healthid.utils.app_utils.id_generator import id_gen
 
 
 class ProductCategory(BaseModel):
+    """
+    model for product category
+
+    Attributes:
+        name: name to product category
+        amount_paid: how much money to pay in order to earn a loyalty
+                     point
+        loyalty_weight: points attached to the purchase of products in
+                        category
+    """
     name = models.CharField(max_length=50, unique=True)
+    amount_paid = models.PositiveIntegerField(default=100)
+    loyalty_weight = models.PositiveIntegerField(default=0)
+    markup = models.PositiveIntegerField(default=25)
+    is_vat_applicable = models.BooleanField(default=False)
+    outlet = models.ForeignKey(Outlet, on_delete=models.CASCADE, null=True)
 
 
 class MeasurementUnit(BaseModel):
@@ -30,19 +45,17 @@ class Product(BaseModel):
     product_name = models.CharField(max_length=244, unique=True)
     measurement_unit = models.ForeignKey(
         MeasurementUnit, on_delete=models.CASCADE)
-    pack_size = models.CharField(max_length=50)
-    sku_number = models.CharField(max_length=100, null=False)
+    sku_number = models.CharField(max_length=100, null=True)
     is_approved = models.BooleanField(default=False)
     description = models.CharField(max_length=150)
     brand = models.CharField(max_length=50)
     manufacturer = models.CharField(max_length=50)
-    vat_status = models.CharField(max_length=50)
-    quality = models.CharField(max_length=50)
+    vat_status = models.BooleanField(default=False)
     sales_price = models.DecimalField(
         max_digits=12, decimal_places=2, null=True)
     nearest_expiry_date = models.DateField(
         auto_now=False, auto_now_add=False, null=True)
-    prefered_supplier = models.ForeignKey(
+    preferred_supplier = models.ForeignKey(
         Suppliers, related_name='prefered', on_delete=models.CASCADE)
     backup_supplier = models.ForeignKey(
         Suppliers, related_name='backup', on_delete=models.CASCADE)
@@ -52,11 +65,11 @@ class Product(BaseModel):
         related_name='product_creator')
     admin_comment = models.TextField(null=True)
     tags = TaggableManager()
-    markup = models.IntegerField(default=25)
+    markup = models.PositiveIntegerField(default=25)
     pre_tax_retail_price = models.DecimalField(
         max_digits=12, decimal_places=2, null=True)
     unit_cost = models.DecimalField(
-        max_digits=12, decimal_places=2, null=False)
+        max_digits=12, decimal_places=2, null=True)
     auto_price = models.BooleanField(default=False)
     loyalty_weight = models.IntegerField(default=0)
     parent = models.ForeignKey(
@@ -71,11 +84,13 @@ class Product(BaseModel):
     is_active = models.BooleanField(default=True)
     reorder_point = models.IntegerField(default=0)
     reorder_max = models.IntegerField(default=0)
+
     '''all_products model manager returns both all products including
     deactivated products i.e Products.all_products.all() returns both
-    active and deactivated products use it when you need deactive
+    active and deactivated products use it when you need deactivate
     products as well.'''
     all_products = models.Manager()
+
     '''objects model manager returns only activated products i.e
     Products.objects.all() returns only active products use it when
     you don't need deactivated products.'''

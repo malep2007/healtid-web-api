@@ -1,22 +1,16 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 
-from healthid.apps.orders.models.orders import Order, OrderDetails
+from healthid.apps.orders.models.orders import Order
 from healthid.apps.outlets.models import Outlet
 from healthid.utils.orders_utils.add_order_details import add_order_details
 from healthid.utils.app_utils.database import (SaveContextManager,
                                                get_model_object)
-
-
-class OrderType(DjangoObjectType):
-    class Meta:
-        model = Order
-
-
-class OrderDetailsType(DjangoObjectType):
-    class Meta:
-        model = OrderDetails
+from healthid.utils.orders_utils.supplier_order_details import \
+    create_suppliers_order_details
+from healthid.apps.orders.schema.order_query import \
+    SupplierOrderDetailsType, OrderDetailsType, OrderType
+from healthid.utils.auth_utils.decorator import user_permission
 
 
 class InitiateOrder(graphene.Mutation):
@@ -26,26 +20,55 @@ class InitiateOrder(graphene.Mutation):
 
     class Arguments:
         name = graphene.String(required=True)
-        destination_outlets = graphene.List(graphene.Int, required=True)
         delivery_date = graphene.Date(required=True)
         product_autofill = graphene.Boolean(required=True)
         supplier_autofill = graphene.Boolean(required=True)
+        destination_outlet = graphene.Int(required=True)
 
     @login_required
     def mutate(self, info, **kwargs):
         '''Mutation to initiate an order in the database
         '''
-        outlets = [get_model_object(Outlet, 'id', outlet_id)
-                   for outlet_id in kwargs['destination_outlets']]
+        outlet = get_model_object(
+            Outlet, 'id', kwargs.get('destination_outlet'))
         order = Order(
             name=kwargs['name'],
             delivery_date=kwargs['delivery_date'],
             product_autofill=kwargs['product_autofill'],
-            supplier_autofill=kwargs['supplier_autofill']
+            supplier_autofill=kwargs['supplier_autofill'],
+            destination_outlet=outlet
         )
         with SaveContextManager(order) as order:
-            order.destination_outlet.add(*outlets)
             success = 'Order successfully initiated!'
+            return InitiateOrder(order=order, success=success)
+
+
+class EditInitiateOrder(graphene.Mutation):
+    order = graphene.Field(OrderType)
+    success = graphene.List(graphene.String)
+    error = graphene.List(graphene.String)
+
+    class Arguments:
+        order_id = graphene.Int(required=True)
+        name = graphene.String()
+        delivery_date = graphene.Date()
+        product_autofill = graphene.Boolean()
+        supplier_autofill = graphene.Boolean()
+        destination_outlet_id = graphene.Int()
+
+    @login_required
+    def mutate(self, info, **kwargs):
+        """
+        Mutation to edit initiated order
+        """
+        order_id = kwargs['order_id']
+        order = get_model_object(Order, 'id', order_id)
+
+        for(key, value) in kwargs.items():
+            setattr(order, key, value)
+
+        with SaveContextManager(order) as order:
+            success = 'Order Edited Successfully!'
             return InitiateOrder(order=order, success=success)
 
 
@@ -58,9 +81,10 @@ class AddOrderDetails(graphene.Mutation):
 
     order_details = graphene.Field(OrderDetailsType)
     message = graphene.Field(graphene.String)
+    suppliers_order_details = graphene.List(SupplierOrderDetailsType)
 
     @classmethod
-    # @login_required
+    @login_required
     def mutate(cls, root, info, **kwargs):
         order_id = kwargs.get('order_id')
         products = kwargs.get('products')
@@ -74,11 +98,15 @@ class AddOrderDetails(graphene.Mutation):
             }
             add_order_details.check_list_length(products, quantities, **params)
             quantity = iter(quantities)
+            object_list = \
+                add_order_details.get_order_details(kwargs, order, quantity)
             order_details = \
-                add_order_details.add_product_quantity(kwargs, order, quantity)
+                add_order_details.add_product_quantity(object_list)
         else:
+            object_list = \
+                add_order_details.get_order_details(kwargs, order)
             order_details = \
-                add_order_details.product_quantity_autofill(kwargs, order)
+                add_order_details.add_product_quantity(object_list)
         if suppliers:
             params = {
                 'name1': 'Suppliers',
@@ -89,11 +117,35 @@ class AddOrderDetails(graphene.Mutation):
             order_details = add_order_details.add_supplier(kwargs, supplier)
         else:
             order_details = add_order_details.supplier_autofill(kwargs)
+        suppliers_order_details = create_suppliers_order_details(order)
 
         message = 'Successfully added order details!'
-        return cls(order_details=order_details, message=message)
+        return cls(order_details=order_details,
+                   message=message,
+                   suppliers_order_details=suppliers_order_details)
+
+
+class ApproveOrder(graphene.Mutation):
+    message = graphene.Field(graphene.String)
+    order = graphene.Field(OrderType)
+
+    class Arguments:
+        order_id = graphene.Int(required=True)
+
+    @login_required
+    @user_permission('Manager', 'Admin')
+    def mutate(self, info, **kwargs):
+        order_id = kwargs.get('order_id')
+        order = get_model_object(Order, 'id', order_id)
+        user = info.context.user
+        order.approve_order(user)
+        with SaveContextManager(order, model=Order) as order:
+            message = "Successfully approved order"
+            return ApproveOrder(message=message, order=order)
 
 
 class Mutation(graphene.ObjectType):
     initiate_order = InitiateOrder.Field()
     add_order_details = AddOrderDetails.Field()
+    approve_order = ApproveOrder.Field()
+    edit_initiated_order = EditInitiateOrder.Field()

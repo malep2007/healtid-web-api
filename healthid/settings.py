@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'healthid.apps.customers',
     'healthid.apps.profiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'cloudinary',
     'taggit',
@@ -180,6 +181,9 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8080',
     FRONTEND_URL,
 )
+CORS_ORIGIN_REGEX_WHITELIST = [
+    r"^https://healthid-fe-pr-[0-9]+\.herokuapp\.com",
+]
 
 cloudinary.config(
     cloud_name=os.getenv('CLOUD_NAME'),
