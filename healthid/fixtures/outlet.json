@@ -559,7 +559,7 @@
       "date_launched": "2018-01-27",
       "prefix_id": "",
       "business": "112t0mti8",
-      "preference": null,
+      "preference_id": null,
       "user": []
     }
   },
@@ -577,7 +577,7 @@
       "date_launched": "2018-01-27",
       "prefix_id": "KY006-PAL",
       "business": "112t0mti8",
-      "preference": "41tntv5fj",
+      "preference_id": "41tntv5fj",
       "user": ["aul5xrp73"]
     }
   }

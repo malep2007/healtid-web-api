@@ -33,8 +33,7 @@
         "fields":{
            "outlet_timezone": "285461788",
            "outlet_currency": "123456789",
-           "vat_rate": "123456789",
-           "outlet_id": 1
+           "vat_rate": "123456789"
         }
     },
     {

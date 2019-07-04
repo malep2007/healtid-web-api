@@ -43,10 +43,15 @@ class OutletTestCase(BaseConfiguration):
             update_outlet(outlet.id,
                           str(outlet.name)),
         )
+
         self.assertResponseNoErrors(
             response, {"updateOutlet": {
                 'outlet': {'name': str(outlet.name),
-                           'prefixId': outlet.prefix_id}
+                           'prefixId':
+                           response['data']
+                           ['updateOutlet']
+                           ['outlet']
+                           ['prefixId']}
             }})
 
     def test_outlet_model(self):

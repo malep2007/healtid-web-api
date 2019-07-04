@@ -2,6 +2,7 @@ from django.db import models
 
 from healthid.apps.authentication.models import User
 from healthid.apps.business.models import Business
+from healthid.apps.preference.models import OutletPreference
 from healthid.models import BaseModel
 
 
@@ -40,9 +41,11 @@ class Outlet(BaseModel):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=25)
     date_launched = models.DateField()
-    prefix_id = models.CharField(max_length=9, null=False)
+    prefix_id = models.CharField(max_length=50, null=False)
     business = models.ForeignKey(Business, on_delete=models.CASCADE)
     user = models.ManyToManyField(User, related_name='users')
+    preference = models.ForeignKey(
+            OutletPreference, on_delete=models.CASCADE, null=True)
 
     class Meta:
         unique_together = (("name", "business"))

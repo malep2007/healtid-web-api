@@ -20,7 +20,8 @@ class TestBarcodeScans(BaseConfiguration):
             'order': self.order
         }
         outlet = self.outlet
-        preference = get_model_object(OutletPreference, 'outlet_id', outlet.id)
+        preference = get_model_object(
+            OutletPreference, 'id', outlet.preference_id)
         setattr(preference, 'barcode_preference', True)
         preference.save()
 

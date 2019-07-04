@@ -3,7 +3,9 @@ from django.db.models import Q
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
+from healthid.utils.auth_utils.decorator import user_permission
 
+from healthid.apps.business.models import Business
 from healthid.apps.outlets.models import City, Country, Outlet, OutletKind
 from healthid.utils.app_utils.database import get_model_object
 from healthid.utils.messages.outlet_responses import OUTLET_ERROR_RESPONSES
@@ -51,8 +53,18 @@ class OutletQuery(graphene.ObjectType):
     )
 
     @login_required
+    @user_permission('Manager')
     def resolve_outlets(self, info, **kwargs):
-        return Outlet.objects.all()
+        user_id = info.context.user.id
+        business_id = (Business.user
+                       .through
+                       .objects
+                       .filter(user_id=user_id)[0]
+                       .business_id
+                       )
+        return Outlet.objects.filter(
+            business_id=business_id
+        )
 
     @login_required
     def resolve_outlet(self, info, **kwargs):

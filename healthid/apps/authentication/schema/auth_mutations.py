@@ -17,7 +17,7 @@ from healthid.apps.authentication.schema.reset_password_mutation import \
 from healthid.apps.outlets.models import Outlet
 from healthid.utils.app_utils.database import (SaveContextManager,
                                                get_model_object)
-from healthid.utils.auth_utils import user_update_instance
+from healthid.utils.auth_utils.update_user import user_update_instance
 from healthid.utils.auth_utils.admin_validation import validate_instance
 from healthid.utils.auth_utils.decorator import user_permission
 from healthid.utils.auth_utils.password_generator import generate_password

@@ -81,7 +81,8 @@ class BarcodeScanForm(forms.Form):
         batch_info = get_model_object(BatchInfo, 'id',
                                       cleaned_data['batch_id'])
         outlet = get_model_object(Outlet, 'id', cleaned_data['outlet_id'])
-        preference = get_model_object(OutletPreference, 'outlet_id', outlet.id)
+        preference = get_model_object(
+            OutletPreference, 'id', outlet.preference_id)
 
         if not preference.barcode_preference:
             raise GraphQLError("Barcode scanning is disabled")

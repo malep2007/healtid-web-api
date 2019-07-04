@@ -87,11 +87,6 @@ class Query(graphene.ObjectType):
         return Timezone.objects.all()
 
     @login_required
-    def resolve_outlet_preference(self, info, **kwargs):
-        id = kwargs.get('outlet_id')
-        return get_model_object(OutletPreference, 'outlet_id', id)
-
-    @login_required
     def resolve_currencies(self, args):
         # returns all currencies from the fixture file
         currencies = Currency.get_currency_formats()

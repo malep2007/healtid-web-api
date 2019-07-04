@@ -2,7 +2,6 @@ from django.db import models
 from graphql.error import GraphQLError
 from healthid.models import BaseModel
 from healthid.utils.preference_utils.currency_fixture import MONEY_FORMATS
-from healthid.apps.outlets.models import Outlet
 from healthid.apps.business.models import Business
 from healthid.utils.app_utils.database import get_model_object
 from healthid.utils.app_utils.id_generator import ID_LENGTH, id_gen
@@ -174,8 +173,6 @@ class OutletPreference(Preference):
     id = models.CharField(
         max_length=ID_LENGTH, primary_key=True, default=id_gen, editable=False
     )
-    outlet = models.OneToOneField(
-            Outlet, on_delete=models.CASCADE, null=True)
     outlet_timezone = models.ForeignKey(
         Timezone, on_delete=models.CASCADE)
     outlet_currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
