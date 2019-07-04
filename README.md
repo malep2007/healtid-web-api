@@ -33,6 +33,24 @@ Run the command below to run the application locally.
   ```
 
 
+## Installing with Docker
+
+```sh
+    $ git clone https://github.com/bryanmezue/healthid-web-api.git
+    $ cd healthid-web-api
+```
+
+* Create a `.env` file and copy/paste the environment variables from the `.env_example` file that's already existent in the root project directory.
+* Create a postgreSQL database called `healthid` using the default `postgres` user and change the value of variable `DB_PASSWORD` in your `.env` file to your `postgres` user's password.
+* The current Docker implementation only works with remote Postgres databases i.e. hosted on Heroku, GCP, etc.
+
+## Running the application
+
+Run the command below to run the application locally.
+```sh
+  $ docker-compose up
+  ```
+
 ## Running the tests
 
 Run the command below to run the tests for the application.
@@ -53,3 +71,4 @@ The project has been built with the following technologies so far:
 * [Virtual environment](https://virtualenv.pypa.io/en/stable/) - tool used to create isolated python environments
 * [pip](https://pip.pypa.io/en/stable/) - package installer for Python
 * [PostgreSQL](https://www.postgresql.org/) - database management system used to persists the application's data.
+* [Docker](https://www.docker.com/) - a set of coupled software-as-a-service and platform-as-a-service products that use operating-system-level virtualization to develop and deliver software in packages called containers.
