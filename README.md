@@ -2,6 +2,8 @@
 
 [![CircleCI](https://circleci.com/gh/bryanmezue/healthid-web-api/tree/dev.svg?style=svg&circle-token=fb99579bc192c2279835e181c7d81737f1d648a7)](https://circleci.com/gh/bryanmezue/healthid-web-api/tree/dev)
 
+![](https://github.com/bryanmezue/healthid-web-api/workflows/HealthID%20-%20Build%20Integration%20Check/badge.svg)
+
 Health ID is an inventory management and customer engagement software platform designed for pharmacists/chemists and their customers. For pharmacists/chemists, Health ID helps them run their stores more efficiently and grow their business by improved targeting of promotions and value-added services. For consumers, Health ID improves their overall experience of pharmacies, provides personalised services and information, and also offers unique product discounts.
 
 
