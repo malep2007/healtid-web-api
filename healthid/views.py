@@ -11,7 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from healthid.apps.products.models import Product, BatchInfo
-from healthid.apps.orders.models.suppliers import Suppliers
+from healthid.apps.orders.models.suppliers import \
+    (Suppliers, SuppliersContacts, SuppliersMeta)
 from healthid.apps.profiles.models import Profile
 from healthid.apps.products.serializers import ProductsSerializer
 from healthid.utils.orders_utils.add_supplier import AddSupplier
@@ -172,25 +173,27 @@ class EmptyCsvFileExport(APIView):
             response = generate_csv_response(
                 HttpResponse,
                 'sample_product.csv',
-                Product,
+                [Product],
                 PRODUCT_INCLUDE_CSV_FIELDS)
         elif param == 'customers':
             response = generate_csv_response(
                 HttpResponse,
                 'sample_customers.csv',
-                Profile,
+                [Profile],
                 CUSTOMERS_INCLUDE_CSV_FIELDS)
         elif param == 'batch_info':
             response = generate_csv_response(HttpResponse,
                                              'sample_batch_info.csv',
-                                             BatchInfo,
+                                             [BatchInfo],
                                              BATCH_INFO_CSV_FIELDS,
                                              name='batch')
         elif param == 'suppliers':
             response = generate_csv_response(
                 HttpResponse,
                 'sample_suppliers.csv',
-                Suppliers,
+                [Suppliers,
+                 SuppliersContacts,
+                 SuppliersMeta],
                 SUPPLIERS_INCLUDE_CSV_FIELDS)
         else:
             response = Response(ERROR_RESPONSES["wrong_param"],

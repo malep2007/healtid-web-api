@@ -71,7 +71,7 @@ class SuppliersTestCase(BaseConfiguration, JSONWebTokenTestCase):
         self.assertIn('errors', response)
         self.assertIn(ERROR_RESPONSES[
                       "duplication_error"].format(
-            "Suppliers with email email@ntale.com"),
+            "SuppliersContacts with email email@ntale.com"),
             response['errors'][0]['message'])
 
     def test_suppliers_query(self):
