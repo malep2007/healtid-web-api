@@ -18,7 +18,8 @@ from healthid.utils.product_utils.product import \
     generate_reorder_points_and_max
 from healthid.utils.messages.products_responses import \
     PRODUCTS_ERROR_RESPONSES, PRODUCTS_SUCCESS_RESPONSES
-from healthid.utils.messages.common_responses import SUCCESS_RESPONSES
+from healthid.utils.messages.common_responses import \
+    SUCCESS_RESPONSES, ERROR_RESPONSES
 
 
 class ServiceQuality(graphene.types.Scalar):
@@ -70,6 +71,7 @@ class CreateBatchInfo(graphene.Mutation):
     message = graphene.String()
 
     class Arguments:
+        batch_no = graphene.String()
         supplier_id = graphene.String(required=True)
         date_received = graphene.String(required=True)
         product_id = graphene.Int(required=True)
@@ -84,11 +86,16 @@ class CreateBatchInfo(graphene.Mutation):
     @batch_info_instance
     def mutate(self, info, **kwargs):
         user = info.context.user
+        batch_n = kwargs.get('batch_no')
+        if BatchInfo.objects.filter(batch_no=batch_n):
+            raise GraphQLError(ERROR_RESPONSES['batch_exist'].format(batch_n))
         quantity = kwargs.pop('quantity')
         kwargs['date_received'] = parse_date(kwargs.get('date_received'))
         kwargs['expiry_date'] = parse_date(kwargs.get('expiry_date'))
 
         batch_info = BatchInfo(user=user)
+        if not batch_n:
+            kwargs['batch_no'] = batch_info.add_batch_no
         for key, value in kwargs.items():
             setattr(batch_info, key, value)
 

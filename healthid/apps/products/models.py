@@ -1,8 +1,10 @@
 from decimal import Decimal
 from functools import reduce
+from re import sub
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils import timezone
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from taggit.managers import TaggableManager
@@ -15,6 +17,8 @@ from healthid.apps.products.managers import ProductManager, QuantityManager
 from healthid.models import BaseModel
 from healthid.utils.app_utils.id_generator import id_gen
 from healthid.utils.app_utils.validator import validator
+from healthid.utils.date_utils.is_same_date import \
+    remove_microseconds
 from healthid.utils.messages.products_responses import PRODUCTS_ERROR_RESPONSES
 from healthid.utils.product_utils.product_price_checker import \
     round_off_selling_price
@@ -40,7 +44,7 @@ class ProductCategory(BaseModel):
     is_default = models.BooleanField(default=False)
 
     class Meta:
-       unique_together = ['name', 'business']
+        unique_together = ['name', 'business']
 
 
 class DispensingSize(BaseModel):
@@ -305,6 +309,14 @@ class BatchInfo(BaseModel):
         """
         proposed_quantity = Quantity.get_proposed_quantities(batch=self)
         return proposed_quantity.quantity_remaining if proposed_quantity else 0
+
+    @property
+    def add_batch_no(self):
+        if self.batch_no is None:
+            datetime_str = str(remove_microseconds(timezone.now()))[:-6]
+            datetime_str = sub('[-: ]', '', datetime_str)
+            self.batch_no = f'BN{datetime_str}-{id_gen()}'
+        return self.batch_no
 
 
 class Quantity(BaseModel):
