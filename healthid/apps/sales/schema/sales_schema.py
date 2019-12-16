@@ -1,41 +1,19 @@
 import graphene
 from graphene_django import DjangoObjectType
-from graphene.utils.resolve_only_args import resolve_only_args
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 
 from healthid.apps.sales.models import (
-    Sale, SaleDetail, SalesPrompt, SaleReturn, SaleReturnDetail)
+    Sale, SalesPrompt, SaleReturn, SaleReturnDetail)
 
 from healthid.utils.app_utils.database import get_model_object
 from healthid.utils.app_utils.pagination import pagination_query
 from healthid.utils.app_utils.pagination_defaults import PAGINATION_DEFAULT
 from healthid.utils.auth_utils.decorator import user_permission
 from healthid.utils.messages.sales_responses import SALES_ERROR_RESPONSES
-
-
-class SalesPromptType(DjangoObjectType):
-    class Meta:
-        model = SalesPrompt
-
-
-class SaleDetailType(DjangoObjectType):
-    class Meta:
-        model = SaleDetail
-
-
-class SaleType(DjangoObjectType):
-    register_id = graphene.Int(source='get_default_register')
-
-    class Meta:
-        model = Sale
-        interfaces = (graphene.relay.Node,)
-
-    id = graphene.ID(required=True)
-
-    @resolve_only_args
-    def resolve_id(self):
-        return self.id
+from healthid.apps.sales.schema.types.sale import (  # noqa
+    SalesPromptType, SaleDetailType, SaleType, SalesPromptType
+)
 
 
 class ConsultationPaymentType(DjangoObjectType):

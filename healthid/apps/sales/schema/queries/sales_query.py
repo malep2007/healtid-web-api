@@ -2,12 +2,7 @@ import graphene
 from graphql_jwt.decorators import login_required
 
 from healthid.apps.sales.sales_velocity import SalesVelocity
-
-
-class Velocity(graphene.ObjectType):
-    default_sales_velocity = graphene.Float()
-    calculated_sales_velocity = graphene.Float()
-    message = graphene.String()
+from healthid.apps.sales.schema.types.velocity import Velocity
 
 
 class Query(graphene.ObjectType):

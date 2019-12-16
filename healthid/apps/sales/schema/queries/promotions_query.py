@@ -7,16 +7,7 @@ from healthid.apps.sales.models import (
 from healthid.utils.app_utils.check_user_in_outlet import \
     check_user_is_active_in_outlet
 from healthid.utils.auth_utils.decorator import user_permission
-
-
-class PromotionTypeModelType(DjangoObjectType):
-    class Meta:
-        model = PromotionTypeModel
-
-
-class PromotionType(DjangoObjectType):
-    class Meta:
-        model = Promotion
+from healthid.apps.sales.schema.types.promotion import PromotionType, PromotionTypeModelType
 
 
 class Query(graphene.AbstractType):

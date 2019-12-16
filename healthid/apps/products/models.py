@@ -40,7 +40,7 @@ class ProductCategory(BaseModel):
     is_default = models.BooleanField(default=False)
 
     class Meta:
-       unique_together = ['name', 'business']
+        unique_together = ['name', 'business']
 
 
 class DispensingSize(BaseModel):
