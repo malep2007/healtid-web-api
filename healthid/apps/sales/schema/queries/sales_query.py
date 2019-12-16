@@ -1,66 +1,39 @@
 import graphene
-from graphene_django import DjangoObjectType
-from graphene.utils.resolve_only_args import resolve_only_args
-from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
+from graphql import GraphQLError
+
+
+from healthid.apps.sales.sales_velocity import SalesVelocity
+from healthid.apps.sales.schema.types.velocity import Velocity
 
 from healthid.apps.sales.models import (
-    Sale, SaleDetail, SalesPrompt, SaleReturn, SaleReturnDetail)
-
+    Sale, SalesPrompt)
 from healthid.utils.app_utils.database import get_model_object
 from healthid.utils.app_utils.pagination import pagination_query
 from healthid.utils.app_utils.pagination_defaults import PAGINATION_DEFAULT
 from healthid.utils.auth_utils.decorator import user_permission
 from healthid.utils.messages.sales_responses import SALES_ERROR_RESPONSES
-
-
-class SalesPromptType(DjangoObjectType):
-    class Meta:
-        model = SalesPrompt
-
-
-class SaleDetailType(DjangoObjectType):
-    class Meta:
-        model = SaleDetail
-
-
-class SaleType(DjangoObjectType):
-    register_id = graphene.Int(source='get_default_register')
-
-    class Meta:
-        model = Sale
-        interfaces = (graphene.relay.Node,)
-
-    id = graphene.ID(required=True)
-
-    @resolve_only_args
-    def resolve_id(self):
-        return self.id
-
-
-class ConsultationPaymentType(DjangoObjectType):
-
-    class Meta:
-        model = Sale
-
-
-class SaleReturnType(DjangoObjectType):
-
-    class Meta:
-        model = SaleReturn
-
-
-class SaleReturnDetailType(DjangoObjectType):
-    class Meta:
-        model = SaleReturnDetail
+from healthid.apps.sales.schema.types.sale import (  # noqa
+    SalesPromptType, SaleDetailType, SaleType,
+    SalesPromptType, SaleReturnDetailType
+)
 
 
 class Query(graphene.ObjectType):
     """
-    Return a list of sales prompt.
-    Or return a single sales prompt specified.
+    Queries Sales
+    Args:
+        product_id (int) the product id
+        outlet_id (int) the outlet id
+    returns:
+        Two float values for the calculated sales velocity
+            and the default sales velocity
     """
 
+    sales_velocity = graphene.Field(
+        Velocity,
+        product_id=graphene.Int(),
+        outlet_id=graphene.Int())
     sales_prompts = graphene.List(SalesPromptType)
     sales_prompt = graphene.Field(SalesPromptType, id=graphene.Int())
 
@@ -75,6 +48,15 @@ class Query(graphene.ObjectType):
 
     sale_history = graphene.Field(
         SaleType, sale_id=graphene.Int(required=True))
+
+    @login_required
+    def resolve_sales_velocity(self, info, **kwargs):
+        product_id = kwargs.get('product_id')
+        outlet_id = kwargs.get('outlet_id')
+
+        return SalesVelocity(
+            product_id=product_id,
+            outlet_id=outlet_id).velocity_calculator()
 
     @login_required
     @user_permission('Manager')

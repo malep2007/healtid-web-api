@@ -4,10 +4,16 @@ from healthid.tests.base_config import BaseConfiguration
 from healthid.tests.test_fixtures.consultation import (
     create_consultation_item, edit_consultation_item,
     delete_consultation_item)
+from healthid.tests.test_fixtures.sales import (consultation_payment)
 from healthid.utils.messages.common_responses import (
     SUCCESS_RESPONSES)
 from healthid.tests.factories import (
     ConsultationItemFactory, CustomerFactory, CustomerConsultationFactory)
+from healthid.utils.messages.consultation_reponses import (
+    CONSULTATION_SUCCESS_RESPONSES)
+from healthid.utils.messages.sales_responses import (
+    SALES_ERROR_RESPONSES
+)
 
 
 fake = Faker()
@@ -34,6 +40,22 @@ class TestConsultationCatalogue(BaseConfiguration):
             "minutes_per_session": fake.random_int(min=1, max=60),
             "price_per_session": fake.random_int()
         }
+
+    def test_consultation_payment(self):
+        response = self.query_with_token(
+            self.access_token, consultation_payment.format(
+                self.customer_consultation.id))
+        self.assertEqual(
+            CONSULTATION_SUCCESS_RESPONSES["consultation_payment_success"],
+            response["data"]["consultationPayment"]["message"])
+
+        already_paid_response = self.query_with_token(
+            self.access_token, consultation_payment.format(
+                self.customer_consultation.id)
+        )
+        self.assertEqual(
+            SALES_ERROR_RESPONSES["already_marked_as_paid"],
+            already_paid_response["errors"][0]["message"])
 
     def test_create_consultation_item(self):
         response = self.query_with_token(

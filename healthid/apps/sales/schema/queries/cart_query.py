@@ -1,22 +1,8 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
-from healthid.apps.sales.models import CartItem, Cart
 
-
-class CartItemType(DjangoObjectType):
-    class Meta:
-        model = CartItem
-
-
-class CartType(DjangoObjectType):
-    total = graphene.Float()
-
-    class Meta:
-        model = Cart
-
-    def resolve_total(self, info, **kwargs):
-        return self.total
+from healthid.apps.sales.models import Cart
+from healthid.apps.sales.schema.types.cart import CartType
 
 
 class Query(graphene.AbstractType):

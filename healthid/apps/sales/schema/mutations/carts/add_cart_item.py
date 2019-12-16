@@ -3,7 +3,7 @@ from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
 from healthid.utils.app_utils.database import (SaveContextManager,
                                                get_model_object)
-from healthid.apps.sales.schema.cart_query import CartItemType
+from healthid.apps.sales.schema.types.cart import CartItemType
 from healthid.apps.sales.models import Cart, CartItem
 from healthid.apps.products.models import Product
 from healthid.utils.messages.sales_responses import\
@@ -52,7 +52,3 @@ class AddCartItem(graphene.Mutation):
             return AddCartItem(success=SALES_SUCCESS_RESPONSES[
                                "add_to_cart_success"],
                                cart_item=cart_item)
-
-
-class Mutation(graphene.ObjectType):
-    add_to_cart = AddCartItem.Field()

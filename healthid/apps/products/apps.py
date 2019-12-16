@@ -6,4 +6,4 @@ class ProductsConfig(AppConfig):
 
     def ready(self):
         from . import signals  # noqa F401
-        from healthid.jobs import main_job # noqa F401
+        from healthid.jobs import main_job  # noqa F401

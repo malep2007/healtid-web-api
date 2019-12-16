@@ -6,7 +6,7 @@ from graphql_jwt.decorators import login_required
 from healthid.apps.products.schema.product_query import (
     ProductType, Product
 )
-from healthid.apps.sales.schema.promotions_query import Promotion
+from healthid.apps.sales.models import Promotion
 from healthid.utils.app_utils.check_user_in_outlet import \
     check_user_is_active_in_outlet
 from healthid.utils.app_utils.database import get_model_object
@@ -60,8 +60,3 @@ class CreateCustomNearExpirePromotion(graphene.Mutation):
         return CreateCustomNearExpirePromotion(
             success='Promotion was generated successfully',
             product=product)
-
-
-class Mutation(graphene.ObjectType):
-    create_custom_near_expire_promotion = \
-        CreateCustomNearExpirePromotion.Field()

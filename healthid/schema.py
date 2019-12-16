@@ -19,10 +19,9 @@ from healthid.apps.preference.schema import (preference_mutation,
 from healthid.apps.products.schema import product_mutations, product_query
 from healthid.apps.receipts.schema import receipt_mutation, receipt_schema
 from healthid.apps.register.schema import register_mutation, register_schema
-from healthid.apps.sales.schema import (sales_mutation, sales_schema,
-                                        promotions_mutation, promotions_query,
-                                        cart_mutation, cart_query, sales_query,
-                                        near_expire_promotion)
+from healthid.apps.sales.schema import (sales_mutation)
+from healthid.apps.sales.schema.queries import (
+    sales_query, promotions_query, cart_query)
 from healthid.apps.events.schema import event_querys, event_mutations
 from healthid.apps.stock.schema.mutations import stock_mutation
 from healthid.apps.stock.schema.queries import stock_query
@@ -45,7 +44,6 @@ class Query(
         event_querys.Query,
         consultation_query.Query,
         schedule_consultation_query.Query,
-        sales_schema.Query,
         sales_query.Query,
         promotions_query.Query,
         stock_query.Query,
@@ -71,15 +69,12 @@ class Mutation(
         notification_mutations.Mutation,
         sales_mutation.Mutation,
         consultation_catalogue_mutation.Mutation,
-        promotions_mutation.Mutation,
         stock_mutation.Mutation,
         order_mutations.Mutation,
         barcode_mutations.Mutation,
         customer_mutation.Mutation,
-        cart_mutation.Mutation,
         invoices_mutation.Mutation,
         wallet_mutation.Mutation,
-        near_expire_promotion.Mutation,
         despatch_mutation.Mutation,
         graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()

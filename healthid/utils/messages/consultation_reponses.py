@@ -1,6 +1,7 @@
 CONSULTATION_SUCCESS_RESPONSES = {
     "consultation_schedule_success": "Consultation has been scheduled",
-    "delete_booking": "Consultation for {} deleted successfully"
+    "delete_booking": "Consultation for {} deleted successfully",
+    "consultation_payment_success": "consultation paid successfully"
 }
 
 CONSULTATION_ERROR_RESPONSES = {

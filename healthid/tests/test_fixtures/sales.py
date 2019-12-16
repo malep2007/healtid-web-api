@@ -349,3 +349,16 @@ generate_custom_near_expire_promos = '''
       }}
     }}
 '''
+
+consultation_payment = '''
+    mutation{{
+        consultationPayment(changeDue: 8.3,
+        customerConsultationId: {},
+        discountTotal: 2,
+        notes: "this is a note",
+        paidAmount: 20,
+        paymentMethod: "Cash", subTotal: 1){{
+            message
+        }}
+    }}
+'''
