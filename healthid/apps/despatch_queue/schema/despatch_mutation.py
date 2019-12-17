@@ -38,7 +38,7 @@ class CreateEmailNotifications(graphene.Mutation):
                 due_date = despatch_queue.add_due_date
             else:
                 due_date = make_aware(datetime.strptime(
-                    str(due_date), '%Y-%m-%d %H:%M:%S'))
+                    str(due_date), '%Y-%m-%d %I:%M'))
         except ValueError as error:
             return error
         despatch_qs = notify(

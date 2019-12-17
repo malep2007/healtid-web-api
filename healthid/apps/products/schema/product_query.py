@@ -22,7 +22,6 @@ from healthid.utils.messages.products_responses import PRODUCTS_ERROR_RESPONSES
 from healthid.utils.app_utils.pagination import pagination_query
 from healthid.utils.app_utils.pagination_defaults import PAGINATION_DEFAULT
 from healthid.utils.app_utils.validators import validate_expire_months
-from django.db.models import Q
 
 
 @convert_django_field.register(TaggableManager)
